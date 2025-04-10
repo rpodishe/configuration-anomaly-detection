@@ -7,8 +7,9 @@ define ADDITIONAL_IMAGE_SPECS
 endef
 
 include boilerplate/generated-includes.mk
+include test/e2e/project.mk
 
-GOLANGCI_LINT_VERSION=v1.59.1
+GOLANGCI_LINT_VERSION=v2.0.2
 MOCKGEN_VERSION=v0.5.0
 
 .DEFAULT_GOAL := all
@@ -47,7 +48,8 @@ build-cadctl: check-go121-install ## Build the cadctl binary
 lint-cadctl: install-linter ## Lint cadctl subproject
 	@echo
 	@echo "Linting cadctl..."
-	GOLANGCI_LINT_CACHE=$$(mktemp -d) $(GOPATH)/bin/golangci-lint run -c .golangci.yml
+	# Explicitly set GOROOT, see https://github.com/golangci/golangci-lint/issues/3107
+	GOROOT=/usr/lib/golang GOLANGCI_LINT_CACHE=$$(mktemp -d) $(GOPATH)/bin/golangci-lint run -c .golangci.yml
 
 .PHONY: test-cadctl
 test-cadctl: check-go121-install ## Run automated tests for cadctl
@@ -69,7 +71,8 @@ build-interceptor: check-go121-install ## Build the interceptor binary
 lint-interceptor: install-linter ## Lint interceptor subproject
 	@echo
 	@echo "Linting interceptor..."
-	cd interceptor && GOLANGCI_LINT_CACHE=$$(mktemp -d) $(GOPATH)/bin/golangci-lint run -c ../.golangci.yml
+	# Explicitly set GOROOT, see https://github.com/golangci/golangci-lint/issues/3107
+	cd interceptor && GOROOT=/usr/lib/golang GOLANGCI_LINT_CACHE=$$(mktemp -d) $(GOPATH)/bin/golangci-lint run -c ../.golangci.yml
 
 .PHONY: test-interceptor
 test-interceptor: check-go121-install check-jq-install build-interceptor ## Run unit tests for interceptor
@@ -102,7 +105,8 @@ build-template-updater: ## Build the template-updater binary
 lint-template-updater: install-linter ## Lint template-updater subproject
 	@echo
 	@echo "Linting template-updater..."
-	cd hack/update-template && GOLANGCI_LINT_CACHE=$$(mktemp -d) $(GOPATH)/bin/golangci-lint run -c ../../.golangci.yml
+	# Explicitly set GOROOT, see https://github.com/golangci/golangci-lint/issues/3107
+	cd hack/update-template && GOROOT=/usr/lib/golang GOLANGCI_LINT_CACHE=$$(mktemp -d) $(GOPATH)/bin/golangci-lint run -c ../../.golangci.yml
 
 .PHONY: boilerplate-update
 boilerplate-update: ## Update boilerplate version
